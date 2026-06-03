@@ -1,0 +1,364 @@
+openapi: 3.0.3
+info:
+  title: Employee Management API
+  version: 1.0.0
+  description: >
+    REST API for managing employees, departments and assignments
+
+servers:
+  - url: http://localhost:8080
+    description: Local server
+
+tags:
+  - name: Employees
+  - name: Departments
+  - name: Assignments
+
+paths:
+  /api/employees:
+    get:
+      tags:
+        - Employees
+      summary: Get all employees
+      description: >
+        Returns a list of employees. Accessible to Manager and HR.
+        Supports optional filtering by department name.
+      security:
+        - basicAuth: []
+      parameters:
+        - name: department
+          in: query
+          required: false
+          description: Filter employees by department name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Employees retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Employee'
+
+    post:
+      tags:
+        - Employees
+      summary: Create a new employee
+      description: HR only. Creates a new employee.
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Employee'
+      responses:
+        '201':
+          description: Employee created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '400':
+          description: Invalid employee data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/employees/{id}:
+    get:
+      tags:
+        - Employees
+      summary: Get employee by ID
+      description: Manager and HR can retrieve a single employee by ID.
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+      responses:
+        '200':
+          description: Employee found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '404':
+          description: Employee not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Employees
+      summary: Update an employee
+      description: HR only. Updates employee basic details such as name and address.
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Employee'
+      responses:
+        '200':
+          description: Employee updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '404':
+          description: Employee not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Employees
+      summary: Delete an employee
+      description: HR only. Deletes an employee record.
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+      responses:
+        '204':
+          description: Employee deleted successfully
+        '404':
+          description: Employee not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/employees/{id}/promote:
+    put:
+      tags:
+        - Employees
+      summary: Promote an employee
+      description: >
+        HR only. Applies promotion business logic by increasing salary and updating
+        employee rank. Returns 400 if the employee is not eligible, for example; if they started less than 6 months ago
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+      responses:
+        '200':
+          description: Employee promoted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '400':
+          description: Employee is not eligible for promotion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Employee not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/departments:
+    get:
+      tags:
+        - Departments
+      summary: Get all departments
+      description: Manager and HR can both retrieve all departments.
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Departments retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Department'
+
+    post:
+      tags:
+        - Departments
+      summary: Create a department
+      description: HR only. Creates a department. Budget must be positive.
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Department'
+      responses:
+        '201':
+          description: Department created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+        '400':
+          description: Invalid department data, such as non-positive budget
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/assignments:
+    post:
+      tags:
+        - Assignments
+      summary: Create an assignment
+      description: HR only. Assigns an employee to a department.
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignmentRequestDTO'
+      responses:
+        '201':
+          description: Assignment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        '400':
+          description: Invalid employeeId or departmentId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/assignments/{id}:
+    delete:
+      tags:
+        - Assignments
+      summary: Delete an assignment
+      description: HR only, deletes an assignment by ID.
+      security:
+        - basicAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AssignmentId'
+      responses:
+        '204':
+          description: Assignment deleted successfully.
+        '404':
+          description: Assignment not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+
+  parameters:
+    EmployeeId:
+      name: id
+      in: path
+      required: true
+      description: Employee ID
+      schema:
+        type: integer
+        format: int64
+
+    AssignmentId:
+      name: id
+      in: path
+      required: true
+      description: Assignment ID
+      schema:
+        type: integer
+        format: int64
+
+  schemas:
+    Employee:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        address:
+          type: string
+        contractType:
+          type: string
+        startDate:
+          type: string
+          format: date
+        salary:
+          type: number
+          format: double
+        rank:
+          type: string
+          enum:
+            - RANK1
+            - RANK2
+
+    Department:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        budget:
+          type: number
+          format: double
+        location:
+          type: string
+
+    Assignment:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        employee:
+          $ref: '#/components/schemas/Employee'
+        department:
+          $ref: '#/components/schemas/Department'
+
+    AssignmentRequestDTO:
+      type: object
+      required:
+        - employeeId
+        - departmentId
+      properties:
+        employeeId:
+          type: integer
+          format: int64
+        departmentId:
+          type: integer
+          format: int64
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
