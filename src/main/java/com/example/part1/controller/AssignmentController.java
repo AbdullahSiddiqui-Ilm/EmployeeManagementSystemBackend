@@ -46,7 +46,7 @@ public class AssignmentController {
     }
 
     @PostMapping
-    public ResponseEntity<AssignmentResponseDTO> createAssignment(@RequestBody AssignmentRequestDTO requestDTO) throws BadRequestException {
+    public ResponseEntity<AssignmentResponseDTO> createAssignment(@RequestBody AssignmentRequestDTO requestDTO) throws BadRequestException{
         AssignmentResponseDTO assignment = assignmentService.createAssignment(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(assignment);
     }
