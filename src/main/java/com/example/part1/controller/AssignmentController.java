@@ -1,12 +1,14 @@
 package com.example.part1.controller;
 
 import com.example.part1.DTOs.AssignmentRequestDTO;
+import com.example.part1.exception.ResourceNotFoundException;
 import com.example.part1.model.Assignment;
 import com.example.part1.model.Department;
 import com.example.part1.model.Employee;
 import com.example.part1.repository.AssignmentRepository;
 import com.example.part1.repository.DepartmentRepository;
 import com.example.part1.repository.EmployeeRepository;
+import com.example.part1.service.AssignmentService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ public class AssignmentController {
     private final AssignmentRepository assignmentRepository;
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
+    private final AssignmentService assignmentService
 
     public AssignmentController(AssignmentRepository assignmentRepository, EmployeeRepository employeeRepository, DepartmentRepository departmentRepository) {
         this.assignmentRepository = assignmentRepository;
@@ -30,14 +33,14 @@ public class AssignmentController {
     }
 
     @GetMapping
-    public List<Assignment> getAllAssignments() {
-        return assignmentRepository.findAll();
+    public List<Assignment> getAllAssignments(@RequestParam(required = false) String employee) {
+        return assignmentService.getAllAssignments(employee);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Assignment> getAssignmentById(@PathVariable Long id) {
-        Optional<Assignment> assignment = assignmentRepository.findById(id);
-        return assignment.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Assignment assignment = assignmentService.getAssignmentByID(id).orElseThrow(() -> new ResourceNotFoundException("Assignment was not found"));
+        return ResponseEntity.ok(assignment);
     }
 
     @PostMapping

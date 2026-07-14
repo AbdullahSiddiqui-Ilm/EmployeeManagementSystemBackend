@@ -1,5 +1,6 @@
 package com.example.part1.service;
 
+import com.example.part1.exception.ResourceNotFoundException;
 import com.example.part1.model.Employee;
 import com.example.part1.repository.EmployeeRepository;
 import org.springframework.stereotype.Service;
