@@ -1,7 +1,8 @@
 package com.example.part1.DTOs;
 
-public class AssignmentRequestDTO {
+import com.example.part1.model.Assignment;
 
+public class AssignmentResponseDTO {
     private Long employeeId;
 
     private Long departmentId;
@@ -11,7 +12,7 @@ public class AssignmentRequestDTO {
     private Integer accessLevel;
 
 
-    public AssignmentRequestDTO() {
+    public AssignmentResponseDTO(Assignment assignment) {
 
     }
 
@@ -51,5 +52,3 @@ public class AssignmentRequestDTO {
         this.accessLevel = accessLevel;
     }
 }
-
-
