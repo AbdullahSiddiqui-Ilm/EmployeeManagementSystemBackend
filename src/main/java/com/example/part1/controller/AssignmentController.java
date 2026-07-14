@@ -23,14 +23,10 @@ import java.util.Optional;
 public class AssignmentController {
 
     private final AssignmentRepository assignmentRepository;
-    private final EmployeeRepository employeeRepository;
-    private final DepartmentRepository departmentRepository;
     private final AssignmentService assignmentService;
 
     public AssignmentController(AssignmentRepository assignmentRepository, EmployeeRepository employeeRepository, DepartmentRepository departmentRepository, AssignmentService assignmentService) {
         this.assignmentRepository = assignmentRepository;
-        this.employeeRepository = employeeRepository;
-        this.departmentRepository = departmentRepository;
         this.assignmentService = assignmentService;
     }
 
